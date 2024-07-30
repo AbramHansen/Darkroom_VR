@@ -1,0 +1,1674 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>JpegLibrary</name>
+    </assembly>
+    <members>
+        <member name="T:JpegLibrary.FastFloatingPointDCT">
+            <summary>
+            Contains inaccurate, but fast forward and inverse DCT implementations.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.FastFloatingPointDCT.TransformIDCT(JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@)">
+            <summary>
+            Apply floating point IDCT transformation into dest, using a temporary block 'temp' provided by the caller (optimization).
+            Ported from https://github.com/norishigefukushima/dct_simd/blob/master/dct/dct8x8_simd.cpp#L239
+            </summary>
+            <param name="src">Source</param>
+            <param name="dest">Destination</param>
+            <param name="temp">Temporary block provided by the caller</param>
+        </member>
+        <member name="M:JpegLibrary.FastFloatingPointDCT.IDCT8x4_LeftPart(JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@)">
+            <summary>
+            Do IDCT internal operations on the left part of the block. Original src:
+            https://github.com/norishigefukushima/dct_simd/blob/master/dct/dct8x8_simd.cpp#L261
+            </summary>
+            <param name="s">The source block</param>
+            <param name="d">Destination block</param>
+        </member>
+        <member name="M:JpegLibrary.FastFloatingPointDCT.IDCT8x4_RightPart(JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@)">
+            <summary>
+            Do IDCT internal operations on the right part of the block.
+            Original src:
+            https://github.com/norishigefukushima/dct_simd/blob/master/dct/dct8x8_simd.cpp#L261
+            </summary>
+            <param name="s">The source block</param>
+            <param name="d">The destination block</param>
+        </member>
+        <member name="M:JpegLibrary.FastFloatingPointDCT.FDCT8x4_LeftPart(JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@)">
+            <summary>
+            Original:
+            <see>
+                <cref>https://github.com/norishigefukushima/dct_simd/blob/master/dct/dct8x8_simd.cpp#L15</cref>
+            </see>
+            </summary>
+            <param name="s">Source</param>
+            <param name="d">Destination</param>
+        </member>
+        <member name="M:JpegLibrary.FastFloatingPointDCT.FDCT8x4_RightPart(JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@)">
+            <summary>
+            Original:
+            <see>
+                <cref>https://github.com/norishigefukushima/dct_simd/blob/master/dct/dct8x8_simd.cpp#L15</cref>
+            </see>
+            </summary>
+            <param name="s">Source</param>
+            <param name="d">Destination</param>
+        </member>
+        <member name="M:JpegLibrary.FastFloatingPointDCT.TransformFDCT(JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@,JpegLibrary.JpegBlock8x8F@,System.Boolean)">
+            <summary>
+            Apply floating point IDCT transformation into dest, using a temporary block 'temp' provided by the caller (optimization)
+            </summary>
+            <param name="src">Source</param>
+            <param name="dest">Destination</param>
+            <param name="temp">Temporary block provided by the caller</param>
+            <param name="offsetSourceByNeg128">If true, a constant -128.0 offset is applied for all values before FDCT </param>
+        </member>
+        <member name="M:JpegLibrary.JpegBitReader.FillBuffer">
+            <summary>
+            Fill the buffer until the buffer contains 32 bits data, or the stream ends, or a marker is encountered.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:JpegLibrary.JpegBlock8x8">
+            <summary>
+            Represents a 8x8 spatial block.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegBlock8x8.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">The index of the element.</param>
+            <returns>The element value.</returns>
+        </member>
+        <member name="P:JpegLibrary.JpegBlock8x8.Item(System.Int32,System.Int32)">
+            <summary>
+            Gets or sets the element at the specified position.
+            </summary>
+            <param name="x">The row index of the block.</param>
+            <param name="y">The column index of the block.</param>
+            <returns>The element value.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegBlock8x8F.TransposeInto(JpegLibrary.JpegBlock8x8F@)">
+            <summary>
+            Transpose the block into the destination block.
+            </summary>
+            <param name="d">The destination block</param>
+        </member>
+        <member name="T:JpegLibrary.JpegBlockAllocator">
+            <summary>
+            The allocator for <see cref="T:JpegLibrary.JpegBlock8x8"/>.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegBlockAllocator.#ctor(System.Buffers.MemoryPool{System.Byte})">
+            <summary>
+            Initialize the allocator/>.
+            </summary>
+            <param name="memoryPool">The memory pool to use.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegBlockAllocator.Allocate(JpegLibrary.JpegFrameHeader)">
+            <summary>
+            Allocate blocks for the specified frame.
+            </summary>
+            <param name="frameHeader">The information of the frame.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegBlockAllocator.GetBlockReference(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            The the reference to the specified spatial block.
+            </summary>
+            <param name="componentIndex">The index of the component.</param>
+            <param name="blockX">The offset of blocks in the horizontal orientation.</param>
+            <param name="blockY">The offset of blocks in the vertical orientation.</param>
+            <returns>The reference to the block.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegBlockAllocator.Flush(JpegLibrary.JpegBlockOutputWriter)">
+            <summary>
+            Flush the blocks into the specified <see cref="T:JpegLibrary.JpegBlockOutputWriter"/>.
+            </summary>
+            <param name="outputWriter">The output writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegBlockAllocator.Dispose">
+            <summary>
+            Release all the resources allocated by the allocator.
+            </summary>
+        </member>
+        <member name="T:JpegLibrary.JpegBlockInputReader">
+            <summary>
+            A input reader that read spatial block from the buffer.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegBlockInputReader.Width">
+            <summary>
+            The width of the image.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegBlockInputReader.Height">
+            <summary>
+            The height of the image.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegBlockInputReader.ReadBlock(System.Int16@,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Read a 8x8 spatial block from the source buffer.
+            </summary>
+            <param name="blockRef">The reference to the block that the implementation should write to.</param>
+            <param name="componentIndex">The index of the component.</param>
+            <param name="x">The X offset in the image.</param>
+            <param name="y">The Y offset in the image.</param>
+        </member>
+        <member name="T:JpegLibrary.JpegBlockOutputWriter">
+            <summary>
+            A output writer that write spatial block to the destination buffer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegBlockOutputWriter.WriteBlock(System.Int16@,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Write a 8x8 spatial block into the destination buffer.
+            </summary>
+            <param name="blockRef">The reference to the block that the implementation should read from.</param>
+            <param name="componentIndex">The index of the component.</param>
+            <param name="x">The X offset in the image.</param>
+            <param name="y">The Y offset in the image.</param>
+        </member>
+        <member name="T:JpegLibrary.JpegDecoder">
+            <summary>
+            The decoder to decode image from JPEG stream.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegDecoder.MemoryPool">
+            <summary>
+            Get or set the memory pool to use when allocating large chunks of temporary buffer.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegDecoder.StartOfFrame">
+            <summary>
+            Get or set the StartOfFrame marker of this image.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.SetInput(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Set JPEG stream content to decode.
+            </summary>
+            <param name="input">The JPEG stream.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.SetInput(System.Buffers.ReadOnlySequence{System.Byte})">
+            <summary>
+            Set JPEG stream content to decode.
+            </summary>
+            <param name="input">The JPEG stream.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.Identify">
+            <summary>
+            Scan the stream for JPEG image information.
+            </summary>
+            <returns>The length of the JPEG stream.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.Identify(System.Boolean)">
+            <summary>
+            Scan the stream for JPEG image information.
+            </summary>
+            <param name="loadQuantizationTables">True to load quantization tables. This is required if you want to estimate the quality factor of the image.</param>
+            <returns>The length of the JPEG stream.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ProcessMarkerForIdentification(JpegLibrary.JpegMarker,JpegLibrary.JpegReader@,System.Boolean)">
+            <summary>
+            This routine is called when <see cref="M:JpegLibrary.JpegDecoder.Identify(System.Boolean)"/> meets a marker in the JPEG stream.
+            </summary>
+            <param name="marker">The JPEG marker.</param>
+            <param name="reader">The JPEG reader.</param>
+            <param name="loadQuantizationTables">True if quantization tables should be loaded.</param>
+            <returns>True if <see cref="M:JpegLibrary.JpegDecoder.Identify(System.Boolean)"/> should continue reading.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.TryEstimateQuanlity(System.Single@)">
+            <summary>
+            Estimate the image quality factor from quantization tables.
+            </summary>
+            <param name="quality">The estimated quality factor.</param>
+            <returns>True if the quality is estimated. False when quantization tables don't exists or loaded.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.LoadTables(System.Memory{System.Byte})">
+            <summary>
+            Load JPEG tables from the specified buffer.
+            </summary>
+            <param name="content">The byte buffer that contains JPEG table definitions.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.LoadTables(System.Buffers.ReadOnlySequence{System.Byte})">
+            <summary>
+            Load JPEG tables from the specified buffer.
+            </summary>
+            <param name="content">The byte buffer that contains JPEG table definitions.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegDecoder.Width">
+            <summary>
+            Get the image width from the frame header.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegDecoder.Height">
+            <summary>
+            Get the image height from the frame header.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegDecoder.Precision">
+            <summary>
+            Get the image precision from the frame header.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegDecoder.NumberOfComponents">
+            <summary>
+            Get the number of components from the frame header.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.SetFrameHeader(JpegLibrary.JpegFrameHeader)">
+            <summary>
+            Set the frame header.
+            </summary>
+            <param name="frameHeader">The JPEG frame header.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.GetMaximumHorizontalSampling">
+            <summary>
+            Get the maximum horizontal sampling factor.
+            </summary>
+            <returns>The maximum horizontal sampling factor</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.GetMaximumVerticalSampling">
+            <summary>
+            Get the maximum vertical sampling factor.
+            </summary>
+            <returns>The maximum vertical sampling factor</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.GetHorizontalSampling(System.Int32)">
+            <summary>
+            Get the horizontal sample for the specified component.
+            </summary>
+            <param name="componentIndex">The index of the component.</param>
+            <returns>The horizontal sample of the component.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.GetVerticalSampling(System.Int32)">
+            <summary>
+            Get the vertical sample for the specified component.
+            </summary>
+            <param name="componentIndex">The index of the component.</param>
+            <returns>The vertical sample of the component.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.SetOutputWriter(JpegLibrary.JpegBlockOutputWriter)">
+            <summary>
+            Set the output buffer writer.
+            </summary>
+            <param name="outputWriter">The output buffer writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.Decode">
+            <summary>
+            Decode the image from the JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ProcessMarkerForDecode(JpegLibrary.JpegMarker,JpegLibrary.JpegReader@)">
+            <summary>
+            This routine is called when <see cref="M:JpegLibrary.JpegDecoder.Decode"/> meets a marker in the JPEG stream.
+            </summary>
+            <param name="marker">The JPEG marker.</param>
+            <param name="reader">The JPEG reader.</param>
+            <returns>True if <see cref="M:JpegLibrary.JpegDecoder.Decode"/> should continue reading.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ProcessScan(JpegLibrary.JpegReader@,JpegLibrary.JpegScanHeader)">
+            <summary>
+            Process scan data.
+            </summary>
+            <param name="reader">The JPEG reader.</param>
+            <param name="scanHeader">The scan header.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.GetRestartInterval">
+            <summary>
+            Get the restart interval.
+            </summary>
+            <returns>The restart interval</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.SetRestartInterval(System.Int32)">
+            <summary>
+            Set the restart interval.
+            </summary>
+            <param name="restartInterval">The restart interval</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ClearHuffmanTable">
+            <summary>
+            Clear all the Huffman tables parsed from the JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ClearArithmeticTable">
+            <summary>
+            Clear all the arithmetic tables parsed from the JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ClearQuantizationTable">
+            <summary>
+            Clear all the quantization tables parsed from the JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.SetHuffmanTable(JpegLibrary.JpegHuffmanDecodingTable)">
+            <summary>
+            Set the Huffman table.
+            </summary>
+            <param name="table">The Huffman table.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.SetQuantizationTable(JpegLibrary.JpegQuantizationTable)">
+            <summary>
+            Set the quantization table.
+            </summary>
+            <param name="table">The quantization table.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.GetHuffmanTable(System.Boolean,System.Byte)">
+            <summary>
+            Get the specified Huffman table.
+            </summary>
+            <param name="isDcTable">Whether the table is DC table.</param>
+            <param name="identifier">The identifier of the Huffman table.</param>
+            <returns>The Huffman table.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.GetQuantizationTable(System.Byte)">
+            <summary>
+            Get the specified quantization table.
+            </summary>
+            <param name="identifier">The identifier of the quantization table.</param>
+            <returns>The quantization table.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.Reset">
+            <summary>
+            Reset the decoder to the initial state.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ResetInput">
+            <summary>
+            Reset the input.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ResetHeader">
+            <summary>
+            Reset the JPEG headers.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ResetTables">
+            <summary>
+            Reset JPEG tables.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegDecoder.ResetOutputWriter">
+            <summary>
+            Reset the output writer.
+            </summary>
+        </member>
+        <member name="T:JpegLibrary.JpegElementPrecision">
+            <summary>
+            Element precision of quantization tablse.
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegElementPrecision.Precision8Bit">
+            <summary>
+            8 bit precision.
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegElementPrecision.Precision12Bit">
+            <summary>
+            12 bit precision.
+            </summary>
+        </member>
+        <member name="T:JpegLibrary.JpegEncoder">
+            <summary>
+            The encoder to encode image into baseline JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.#ctor">
+            <summary>
+            Initialize the encoder.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.#ctor(System.Int32)">
+            <summary>
+            Initialize the encoder.
+            </summary>
+            <param name="minimumBufferSegmentSize">The minimum size of buffer to rent from the output writer.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegEncoder.MostOptimalCoding">
+            <summary>
+            True to generate the most optimal Huffman codes. This may takes more time than the standard method but yields better codes.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegEncoder.MinimumBufferSegmentSize">
+            <summary>
+            Get the minimum size of buffer to rent from the output writer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.CloneParameters``1">
+            <summary>
+            Clone the current parameters of the encoder.
+            </summary>
+            <typeparam name="T">The cloned encoder type.</typeparam>
+            <returns>The cloned encoder.</returns>
+        </member>
+        <member name="P:JpegLibrary.JpegEncoder.MemoryPool">
+            <summary>
+            Get or set the memory pool to use when allocating large chunks of temporary buffer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.SetInputReader(JpegLibrary.JpegBlockInputReader)">
+            <summary>
+            Set the input buffer writer.
+            </summary>
+            <param name="inputReader">The output buffer reader.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.SetOutput(System.Buffers.IBufferWriter{System.Byte})">
+            <summary>
+            Set the output writer that JPEG stream will be written to.
+            </summary>
+            <param name="output">The output writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.SetQuantizationTable(JpegLibrary.JpegQuantizationTable)">
+            <summary>
+            Set the quantization table.
+            </summary>
+            <param name="table">The quantization table.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.SetHuffmanTable(System.Boolean,System.Byte,JpegLibrary.JpegHuffmanEncodingTable)">
+            <summary>
+            Set the Huffman table.
+            </summary>
+            <param name="isDcTable">Whether the table is DC table.</param>
+            <param name="identifier">The identifier of the Huffman table.</param>
+            <param name="table">The Huffman table.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.SetHuffmanTable(System.Boolean,System.Byte)">
+            <summary>
+            Set the Huffman table that should be automatically generated.
+            </summary>
+            <param name="isDcTable">Whether the table is DC table.</param>
+            <param name="identifier">The identifier of the Huffman table.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.AddComponent(System.Byte,System.Byte,System.Byte,System.Byte,System.Byte,System.Byte)">
+            <summary>
+            Add a component to encode.
+            </summary>
+            <param name="componentIndex">The index of the component.</param>
+            <param name="quantizationTableIdentifier">The identifier of the quantization table.</param>
+            <param name="huffmanDcTableIdentifier">The identifier of the DC Huffman table.</param>
+            <param name="huffmanAcTableIdentifier">The identifier of the AC Huffman table.</param>
+            <param name="horizontalSubsampling">The horizontal subsampling factor.</param>
+            <param name="verticalSubsampling">The horizontal subsampling factor.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.CreateJpegWriter">
+            <summary>
+            Create a JPEG writer.
+            </summary>
+            <returns>The JPEG writer.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.Encode">
+            <summary>
+            Encode the image.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WriteStartOfImage(JpegLibrary.JpegWriter@)">
+            <summary>
+            Write the StartOfImage marker.
+            </summary>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WriteQuantizationTables(JpegLibrary.JpegWriter@)">
+            <summary>
+            Write quantization tables.
+            </summary>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WriteHuffmanTables(JpegLibrary.JpegWriter@)">
+            <summary>
+            Write Huffman tables.
+            </summary>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WriteStartOfFrame(JpegLibrary.JpegWriter@)">
+            <summary>
+            Write the StartOfFrame header.
+            </summary>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WriteStartOfScan(JpegLibrary.JpegWriter@)">
+            <summary>
+            Write the StartOfScan header.
+            </summary>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.TransformBlocks(JpegLibrary.JpegBlockAllocator)">
+            <summary>
+            Encode each block and save the coefficients.
+            </summary>
+            <param name="allocator">The coefficient allocator.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.BuildHuffmanTables(JpegLibrary.JpegFrameHeader,JpegLibrary.JpegBlockAllocator,System.Boolean)">
+            <summary>
+            Build Huffman table from the coefficients.
+            </summary>
+            <param name="frameHeader">The JPEG frame header.</param>
+            <param name="allocator">The coefficient allocator.</param>
+            <param name="optimal">Whether to use the optimal algorithm.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WritePreparedScanData(JpegLibrary.JpegFrameHeader,JpegLibrary.JpegBlockAllocator,JpegLibrary.JpegWriter@)">
+            <summary>
+            Write the prepared scan data.
+            </summary>
+            <param name="frameHeader">The JPEG frame header.</param>
+            <param name="allocator">The coefficient allocator.</param>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WriteScanData(JpegLibrary.JpegWriter@)">
+            <summary>
+            Encode the image and write scan data.
+            </summary>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.WriteEndOfImage(JpegLibrary.JpegWriter@)">
+            <summary>
+            Write the EndOfImage marker.
+            </summary>
+            <param name="writer">The JPEG writer.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegEncoder.BitCountTable">
+            <summary>
+            Gets the counts the number of bits needed to hold an integer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.ResetInputReader">
+            <summary>
+            Reset the input reader.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.ResetTables">
+            <summary>
+            Reset JPEG tables.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.ResetComponents">
+            <summary>
+            Reset the components.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.ResetOutput">
+            <summary>
+            Reset the output.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegEncoder.Reset">
+            <summary>
+            Reset the encoder to the initial state.
+            </summary>
+        </member>
+        <member name="T:JpegLibrary.JpegFrameHeader">
+            <summary>
+            The frame header defined by StartOfFrame marker.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameHeader.#ctor(System.Byte,System.UInt16,System.UInt16,System.Byte,JpegLibrary.JpegFrameComponentSpecificationParameters[])">
+            <summary>
+            Initialize the frame header.
+            </summary>
+            <param name="samplePrecision">The sample precision.</param>
+            <param name="numberOfLines">Number of lines.</param>
+            <param name="samplesPerLine">Samples per line.</param>
+            <param name="numberOfComponents">Number of components.</param>
+            <param name="components">Parameters for each component.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameHeader.Components">
+            <summary>
+            Parameters for each component.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameHeader.SamplePrecision">
+            <summary>
+            The sample precision.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameHeader.NumberOfLines">
+            <summary>
+            Number of lines.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameHeader.SamplesPerLine">
+            <summary>
+            Samples per line.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameHeader.NumberOfComponents">
+            <summary>
+            Number of components.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameHeader.BytesRequired">
+            <summary>
+            Gets the count of bytes required to encode this frame header.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameHeader.TryParse(System.Buffers.ReadOnlySequence{System.Byte},System.Boolean,JpegLibrary.JpegFrameHeader@,System.Int32@)">
+            <summary>
+            Parse the frame header from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="metadataOnly">True if the construction of the <see cref="T:JpegLibrary.JpegFrameComponentSpecificationParameters"/> array should be suppressed.</param>
+            <param name="frameHeader">The frame header parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the frame header is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameHeader.TryParse(System.ReadOnlySpan{System.Byte},System.Boolean,JpegLibrary.JpegFrameHeader@,System.Int32@)">
+            <summary>
+            Parse the frame header from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="metadataOnly">True if the construction of the <see cref="T:JpegLibrary.JpegFrameComponentSpecificationParameters"/> array should be suppressed.</param>
+            <param name="frameHeader">The frame header parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the frame header is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameHeader.TryWrite(System.Span{System.Byte},System.Int32@)">
+            <summary>
+            Write the frame header into the buffer specified.
+            </summary>
+            <param name="buffer">The buffer to write to.</param>
+            <param name="bytesWritten">The count of bytes written.</param>
+            <returns>True if the destination buffer is large enough.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegFrameComponentSpecificationParameters">
+            <summary>
+            Parameters for each component in the frame.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameComponentSpecificationParameters.#ctor(System.Byte,System.Byte,System.Byte,System.Byte)">
+            <summary>
+            Initialize the instance.
+            </summary>
+            <param name="identifier">The identifier of this component.</param>
+            <param name="horizontalSamplingFactor">The horizontal sampling factor.</param>
+            <param name="verticalSamplingFactor">The vertical sampling factor.</param>
+            <param name="quantizationTableSelector">The quantization table selector.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameComponentSpecificationParameters.Identifier">
+            <summary>
+            The identifier of this component.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameComponentSpecificationParameters.HorizontalSamplingFactor">
+            <summary>
+            The horizontal sampling factor.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameComponentSpecificationParameters.VerticalSamplingFactor">
+            <summary>
+            The vertical sampling factor.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegFrameComponentSpecificationParameters.QuantizationTableSelector">
+            <summary>
+            The quantization table selector.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameComponentSpecificationParameters.TryParse(System.Buffers.ReadOnlySequence{System.Byte},JpegLibrary.JpegFrameComponentSpecificationParameters@)">
+            <summary>
+            Parse the frame component from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="component">The frame component parsed.</param>
+            <returns>True is the frame component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameComponentSpecificationParameters.TryParse(System.ReadOnlySpan{System.Byte},JpegLibrary.JpegFrameComponentSpecificationParameters@)">
+            <summary>
+            Parse the frame component from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="component">The frame component parsed.</param>
+            <returns>True is the frame component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegFrameComponentSpecificationParameters.TryWrite(System.Span{System.Byte},System.Int32@)">
+            <summary>
+            Write the frame component into the buffer specified.
+            </summary>
+            <param name="buffer">The buffer to write to.</param>
+            <param name="bytesWritten">The count of bytes written.</param>
+            <returns>True if the destination buffer is large enough.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegHuffmanCanonicalCode">
+            <summary>
+            Represents a Huffman canonical code.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanCanonicalCode.Code">
+            <summary>
+            The code value of the symbol.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanCanonicalCode.Symbol">
+            <summary>
+            The actual symbol.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanCanonicalCode.CodeLength">
+            <summary>
+            The length of the code.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanCanonicalCode.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:JpegLibrary.JpegHuffmanDecodingTable">
+            <summary>
+            This class represents a Huffman table in the JPEG stream. It supports decoding of Huffman symbol from JPEG stream.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanDecodingTable.TableClass">
+            <summary>
+            The class of this table.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanDecodingTable.Identifier">
+            <summary>
+            The identifier of this table.
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegHuffmanDecodingTable._values">
+            <summary>
+            Derived from the DHT marker. Contains the symbols, in order of incremental code length.
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegHuffmanDecodingTable._maxCode">
+            <summary>
+            Contains the largest code of length k (0 if none). MaxCode[17] is a sentinel to ensure the decoder terminates.
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegHuffmanDecodingTable._valOffset">
+            <summary>
+            Contains the largest code of length k (0 if none). MaxCode[17] is a sentinel to ensure the decoder terminates.Values[] offset for codes of length k  ValOffset[k] = Values[] index of 1st symbol of code length k, less the smallest code of length k; so given a code of length k, the corresponding symbol is Values[code + ValOffset[k]].
+            </summary>
+        </member>
+        <member name="T:JpegLibrary.JpegHuffmanDecodingTable.Entry">
+            <summary>
+            A Huffman symbol.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanDecodingTable.Entry.CodeSize">
+            <summary>
+            The length of the code.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanDecodingTable.Entry.SymbolValue">
+            <summary>
+            The actual symbol.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanDecodingTable.Lookup(System.Int32)">
+            <summary>
+            Lookup a Huffman code from the table.
+            </summary>
+            <param name="code16bit">The next 16 bit in the stream.</param>
+            <exception cref="T:System.IO.InvalidDataException">No symbol is decoded.</exception>
+            <returns>The Huffman symbol.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanDecodingTable.TryParse(System.Buffers.ReadOnlySequence{System.Byte},JpegLibrary.JpegHuffmanDecodingTable@,System.Int32@)">
+            <summary>
+            Parse the Huffman table from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="huffmanTable">The Huffman table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the Huffman table is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanDecodingTable.TryParse(System.ReadOnlySpan{System.Byte},JpegLibrary.JpegHuffmanDecodingTable@,System.Int32@)">
+            <summary>
+            Parse the Huffman table from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="huffmanTable">The Huffman table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the Huffman table is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanDecodingTable.TryParse(System.Byte,System.Byte,System.Buffers.ReadOnlySequence{System.Byte},JpegLibrary.JpegHuffmanDecodingTable@,System.Int32@)">
+            <summary>
+            Parse the Huffman table from the buffer.
+            </summary>
+            <param name="identifier">The identifier of the table.</param>
+            <param name="tableClass">The class of the table.</param>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="huffmanTable">The Huffman table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the Huffman table is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanDecodingTable.TryParse(System.Byte,System.Byte,System.ReadOnlySpan{System.Byte},JpegLibrary.JpegHuffmanDecodingTable@,System.Int32@)">
+            <summary>
+            Parse the Huffman table from the buffer.
+            </summary>
+            <param name="identifier">The identifier of the table.</param>
+            <param name="tableClass">The class of the table.</param>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="huffmanTable">The Huffman table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the Huffman table is successfully parsed.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegHuffmanEncodingTable">
+            <summary>
+            A Huffman encoding table to encode symbols into JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanEncodingTable.#ctor(JpegLibrary.JpegHuffmanCanonicalCode[])">
+            <summary>
+            Initialize the table with the specified canonical code.
+            </summary>
+            <param name="codes">The canonical code used to initialize the table.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegHuffmanEncodingTable.BytesRequired">
+            <summary>
+            the count of bytes required to encode this Huffman table.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanEncodingTable.TryWrite(System.Span{System.Byte},System.Int32@)">
+            <summary>
+            Write the Huffman table into the buffer specified.
+            </summary>
+            <param name="buffer">The buffer to write to.</param>
+            <param name="bytesWritten">The count of bytes written.</param>
+            <returns>True if the destination buffer is large enough.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanEncodingTable.GetCode(System.Int32,System.UInt16@,System.Int32@)">
+            <summary>
+            Get the Huffman code for the specified symbol.
+            </summary>
+            <param name="symbol">The symbol to encode.</param>
+            <param name="code">The Huffman code of the symbol.</param>
+            <param name="codeLength">The length of the Huffman code.</param>
+        </member>
+        <member name="T:JpegLibrary.JpegHuffmanEncodingTableBuilder">
+            <summary>
+            A builder to build <see cref="T:JpegLibrary.JpegHuffmanEncodingTable"/>
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanEncodingTableBuilder.#ctor">
+            <summary>
+            Initialize the Huffman table builder.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanEncodingTableBuilder.IncrementCodeCount(System.Int32)">
+            <summary>
+            Increment frequency for the specified symbol.
+            </summary>
+            <param name="symbol">The symbol to record.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanEncodingTableBuilder.Reset">
+            <summary>
+            Reset the frequencies of all symbols to zero.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegHuffmanEncodingTableBuilder.Build(System.Boolean)">
+            <summary>
+            Build the <see cref="T:JpegLibrary.JpegHuffmanEncodingTable"/>.
+            </summary>
+            <param name="optimal">True to use the optimal algorithm. False to use the modified version of the algorithm specified in ITU-T81.</param>
+            <returns>The Huffman encoding table.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegMarker">
+            <summary>
+            JPEG markers
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.Padding">
+            <summary>
+            Padding
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfImage">
+            <summary>
+            Start of image
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App0">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App1">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App2">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App3">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App4">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App5">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App6">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App7">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App8">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App9">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App10">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App11">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App12">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App13">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App14">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.App15">
+            <summary>
+            Reserved for application segments
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame0">
+            <summary>
+            Start of Frame marker, non-differential, Huffman coding, Baseline DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame1">
+            <summary>
+            Start of Frame marker, non-differential, Huffman coding, Extended sequential DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame2">
+            <summary>
+            Start of Frame marker, non-differential, Huffman coding, Progressive DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame3">
+            <summary>
+            Start of Frame marker, non-differential, Huffman coding, Lossless (sequential)
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame5">
+            <summary>
+            Start of Frame marker, differential, Huffman coding, Differential sequential DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame6">
+            <summary>
+            
+            Start of Frame marker, differential, Huffman coding, Differential progressive DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame7">
+            <summary>
+            Start of Frame marker, differential, Huffman coding, Differential lossless (sequential)
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame9">
+            <summary>
+            Start of Frame marker, non-differential, arithmetic coding, Extended sequential DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame10">
+            <summary>
+            Start of Frame marker, non-differential, arithmetic coding, Progressive DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame11">
+            <summary>
+            Start of Frame marker, non-differential, arithmetic coding, Lossless (sequential)
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame13">
+            <summary>
+            Start of Frame marker, differential, arithmetic coding, Differential sequential DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame14">
+            <summary>
+            Start of Frame marker, differential, arithmetic coding, Differential progressive DCT
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfFrame15">
+            <summary>
+            Start of Frame marker, differential, arithmetic coding, Differential lossless (sequential)
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineHuffmanTable">
+            <summary>
+             Define Huffman table(s)
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineArithmeticCodingConditioning">
+            <summary>
+            Define arithmetic coding conditioning(s)
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineQuantizationTable">
+            <summary>
+            Define quantization table(s)
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineNumberOfLines">
+            <summary>
+            Define number of lines
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestartInterval">
+            <summary>
+            Define restart interval
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.StartOfScan">
+            <summary>
+            Start of scan
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart0">
+            <summary>
+             Restart with modulo 8 count 0
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart1">
+            <summary>
+             Restart with modulo 8 count 1
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart2">
+            <summary>
+             Restart with modulo 8 count 2
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart3">
+            <summary>
+             Restart with modulo 8 count 3
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart4">
+            <summary>
+             Restart with modulo 8 count 4
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart5">
+            <summary>
+             Restart with modulo 8 count 5
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart6">
+            <summary>
+             Restart with modulo 8 count 6
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.DefineRestart7">
+            <summary>
+             Restart with modulo 8 count 7
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.Comment">
+            <summary>
+            Comment
+            </summary>
+        </member>
+        <member name="F:JpegLibrary.JpegMarker.EndOfImage">
+            <summary>
+            End of image
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegMathHelper.Log2SoftwareFallback(System.UInt32)">
+            <summary>
+            Returns the integer (floor) log of the specified value, base 2.
+            Note that by convention, input value 0 returns 0 since Log(0) is undefined.
+            Does not directly use any hardware intrinsics, nor does it incur branching.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="T:JpegLibrary.JpegOptimizer">
+            <summary>
+            A optimizer to optimize baseline JPEG file to reduce file size.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegOptimizer.#ctor">
+            <summary>
+            Initialize the optimizer.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegOptimizer.MostOptimalCoding">
+            <summary>
+            True to generate the most optimal Huffman codes. This may takes more time than the standard method but yields better codes.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegOptimizer.#ctor(System.Int32)">
+            <summary>
+            Initialize the decoder.
+            </summary>
+            <param name="minimumBufferSegmentSize">The minimum size of buffer to rent from the output writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegOptimizer.SetInput(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Set JPEG stream content to optimize.
+            </summary>
+            <param name="input">The JPEG stream.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegOptimizer.SetInput(System.Buffers.ReadOnlySequence{System.Byte})">
+            <summary>
+            Set JPEG stream content to optimize.
+            </summary>
+            <param name="input">The JPEG stream.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegOptimizer.Scan">
+            <summary>
+            Scan the JPEG stream to build optimal Huffman tables.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegOptimizer.SetOutput(System.Buffers.IBufferWriter{System.Byte})">
+            <summary>
+            Set the output writer that new JPEG stream will be written to.
+            </summary>
+            <param name="output">The output writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegOptimizer.Optimize(System.Boolean)">
+            <summary>
+            Optimize JPEG stream.
+            </summary>
+            <param name="strip">True to strip all the metadata from the JPEG stream.</param>
+        </member>
+        <member name="T:JpegLibrary.JpegQuantizationTable">
+            <summary>
+            JPEG quantization table.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegQuantizationTable.#ctor(System.Byte,System.Byte,System.UInt16[])">
+            <summary>
+            Initialize a quantization table object.
+            </summary>
+            <param name="elementPrecision">The element precision. 0 for 8 bit precision. 1 for 12 bit precision.</param>
+            <param name="identifier">The identifier of the quantization table.</param>
+            <param name="elements">The elements of the quantization table in zig-zag order.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegQuantizationTable.ElementPrecision">
+            <summary>
+            The element precision. 0 for 8 bit precision. 1 for 12 bit precision.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegQuantizationTable.Identifier">
+            <summary>
+            The identifier of the quantization table.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegQuantizationTable.Elements">
+            <summary>
+            Gets the elements of the quantization table in zig-zag order.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegQuantizationTable.IsEmpty">
+            <summary>
+            Gets whether this quantization is empty (not initialized).
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegQuantizationTable.BytesRequired">
+            <summary>
+            Get the byte count required when writing this quantization table into JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegQuantizationTable.TryParse(System.Buffers.ReadOnlySequence{System.Byte},JpegLibrary.JpegQuantizationTable@,System.Int32@)">
+            <summary>
+            Parse the quantization table from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="quantizationTable">The quantization table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the scan component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegQuantizationTable.TryParse(System.ReadOnlySpan{System.Byte},JpegLibrary.JpegQuantizationTable@,System.Int32@)">
+            <summary>
+            Parse the quantization table from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="quantizationTable">The quantization table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the scan component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegQuantizationTable.TryParse(System.Byte,System.Byte,System.Buffers.ReadOnlySequence{System.Byte},JpegLibrary.JpegQuantizationTable@,System.Int32@)">
+            <summary>
+            Parse the quantization table from the buffer.
+            </summary>
+            <param name="precision">The precision of the quantization table.</param>
+            <param name="identifier">The identifier of the quantization table.</param>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="quantizationTable">The quantization table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the scan component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegQuantizationTable.TryParse(System.Byte,System.Byte,System.ReadOnlySpan{System.Byte},JpegLibrary.JpegQuantizationTable@,System.Int32@)">
+            <summary>
+            Parse the quantization table from the buffer.
+            </summary>
+            <param name="precision">The precision of the quantization table.</param>
+            <param name="identifier">The identifier of the quantization table.</param>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="quantizationTable">The quantization table parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the scan component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegQuantizationTable.TryWrite(System.Span{System.Byte},System.Int32@)">
+            <summary>
+            Write the quantization table into the buffer specified.
+            </summary>
+            <param name="buffer">The buffer to write to.</param>
+            <param name="bytesWritten">The count of bytes written.</param>
+            <returns>True if the destination buffer is large enough.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegReader">
+            <summary>
+            A mutable struct to read markers and other content from JPEG stream.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.#ctor(System.Buffers.ReadOnlySequence{System.Byte})">
+            <summary>
+            Initialize the reader with the specified data stream.
+            </summary>
+            <param name="data">The stream to read from.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.#ctor(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Initialize the reader with the specified data stream.
+            </summary>
+            <param name="data">The stream to read from.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegReader.IsEmpty">
+            <summary>
+            Gets whether there is any remaining data to read.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegReader.RemainingByteCount">
+            <summary>
+            Gets the remaining byte count for the reader to read.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegReader.ConsumedByteCount">
+            <summary>
+            Gets the total consumed byte count from the start of the stream.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegReader.RemainingBytes">
+            <summary>
+            Gets the remaining data to read.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.TryReadStartOfImageMarker">
+            <summary>
+            Read the StartOfImage marker.
+            </summary>
+            <returns>True if the immediately following bytes in the stream is StartOfImage marker.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.TryReadMarker(JpegLibrary.JpegMarker@)">
+            <summary>
+            Read the next marker.
+            </summary>
+            <param name="marker">The next marker in the stream.</param>
+            <returns>True if the immediately following bytes in the stream is a marker.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.TryReadLength(System.UInt16@)">
+            <summary>
+            Read the next two bytes as the length field.
+            </summary>
+            <param name="length">The length represented by the next two bytes.</param>
+            <returns>True if the remaining stream contains at least two bytes.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.TryPeekLength(System.UInt16@)">
+            <summary>
+            Read the next two bytes as the length field, but the stream offset is not advanced.
+            </summary>
+            <param name="length">The length represented by the next two bytes.</param>
+            <returns>True if the remaining stream contains at least two bytes.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.TryReadBytes(System.Int32,System.Buffers.ReadOnlySequence{System.Byte}@)">
+            <summary>
+            Read bytes from the stream.
+            </summary>
+            <param name="length">The length of bytes to read.</param>
+            <param name="bytes">The bytes read from the stream.</param>
+            <returns>True if the length of the remaining stream is not less then the <paramref name="length"/> parameter.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.TryPeekBytes(System.Int32,System.Buffers.ReadOnlySequence{System.Byte}@)">
+            <summary>
+            Read bytes from the stream, but the stream offset is not advanced.
+            </summary>
+            <param name="length">The length of bytes to read.</param>
+            <param name="bytes">The bytes read from the stream.</param>
+            <returns>True if the length of the remaining stream is not less then the <paramref name="length"/> parameter.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegReader.TryAdvance(System.Int32)">
+            <summary>
+            Advance the stream by the specified byte count.
+            </summary>
+            <param name="length">The byte count to advance by.</param>
+            <returns>True if the length of the remaining stream is not less then the <paramref name="length"/> parameter.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegScanHeader">
+            <summary>
+            The scan header defined by StartOfScan marker.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegScanHeader.#ctor(System.Byte,JpegLibrary.JpegScanComponentSpecificationParameters[],System.Byte,System.Byte,System.Byte,System.Byte)">
+            <summary>
+            Initialize the scan header.
+            </summary>
+            <param name="numberOfComponents">The number of component in this scan.</param>
+            <param name="components">Parameters for each component.</param>
+            <param name="startOfSpectralSelection">Start of spectral selection.</param>
+            <param name="endOfSpectralSelection">End of spectral selection.</param>
+            <param name="successiveApproximationBitPositionHigh">Successive approximation bit position (high).</param>
+            <param name="successiveApproximationBitPositionLow">Successive approximation bit position (low).</param>
+        </member>
+        <member name="P:JpegLibrary.JpegScanHeader.Components">
+            <summary>
+            Parameters for each component.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanHeader.NumberOfComponents">
+            <summary>
+            The number of component in this scan.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanHeader.StartOfSpectralSelection">
+            <summary>
+            Start of spectral selection.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanHeader.EndOfSpectralSelection">
+            <summary>
+            End of spectral selection.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanHeader.SuccessiveApproximationBitPositionHigh">
+            <summary>
+            Successive approximation bit position (high).
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanHeader.SuccessiveApproximationBitPositionLow">
+            <summary>
+            Successive approximation bit position (low).
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanHeader.BytesRequired">
+            <summary>
+            Gets the count of bytes required to encode this scan header.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegScanHeader.TryParse(System.Buffers.ReadOnlySequence{System.Byte},System.Boolean,JpegLibrary.JpegScanHeader@,System.Int32@)">
+            <summary>
+            Parse the scan header from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="metadataOnly">True if the construction of the <see cref="T:JpegLibrary.JpegScanComponentSpecificationParameters"/> array should be suppressed.</param>
+            <param name="scanHeader">The scan header parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the scan header is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegScanHeader.TryParse(System.ReadOnlySpan{System.Byte},System.Boolean,JpegLibrary.JpegScanHeader@,System.Int32@)">
+            <summary>
+            Parse the scan header from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="metadataOnly">True if the construction of the <see cref="T:JpegLibrary.JpegScanComponentSpecificationParameters"/> array should be suppressed.</param>
+            <param name="scanHeader">The scan header parsed.</param>
+            <param name="bytesConsumed">The count of bytes consumed by the parser.</param>
+            <returns>True is the scan header is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegScanHeader.TryWrite(System.Span{System.Byte},System.Int32@)">
+            <summary>
+            Write the scan header into the buffer specified.
+            </summary>
+            <param name="buffer">The buffer to write to.</param>
+            <param name="bytesWritten">The count of bytes written.</param>
+            <returns>True if the destination buffer is large enough.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegScanComponentSpecificationParameters">
+            <summary>
+            Parameters for each component in the scan.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegScanComponentSpecificationParameters.#ctor(System.Byte,System.Byte,System.Byte)">
+            <summary>
+            Initialize the instance.
+            </summary>
+            <param name="scanComponentSelector">The component selector.</param>
+            <param name="dcEntropyCodingTableSelector">The DC entropy coding table selector.</param>
+            <param name="acEntropyCodingTableSelector">The AC entropy coding table selector.</param>
+        </member>
+        <member name="P:JpegLibrary.JpegScanComponentSpecificationParameters.ScanComponentSelector">
+            <summary>
+            The component selector.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanComponentSpecificationParameters.DcEntropyCodingTableSelector">
+            <summary>
+            The DC entropy coding table selector.
+            </summary>
+        </member>
+        <member name="P:JpegLibrary.JpegScanComponentSpecificationParameters.AcEntropyCodingTableSelector">
+            <summary>
+            The AC entropy coding table selector.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegScanComponentSpecificationParameters.TryParse(System.Buffers.ReadOnlySequence{System.Byte},JpegLibrary.JpegScanComponentSpecificationParameters@)">
+            <summary>
+            Parse the scan component from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="component">The scan component parsed.</param>
+            <returns>True is the scan component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegScanComponentSpecificationParameters.TryParse(System.ReadOnlySpan{System.Byte},JpegLibrary.JpegScanComponentSpecificationParameters@)">
+            <summary>
+            Parse the scan component from the buffer.
+            </summary>
+            <param name="buffer">The buffer to read from.</param>
+            <param name="component">The scan component parsed.</param>
+            <returns>True is the scan component is successfully parsed.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegScanComponentSpecificationParameters.TryWrite(System.Span{System.Byte},System.Int32@)">
+            <summary>
+            Write the scan component into the buffer specified.
+            </summary>
+            <param name="buffer">The buffer to write to.</param>
+            <param name="bytesWritten">The count of bytes written.</param>
+            <returns>True if the destination buffer is large enough.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegStandardHuffmanEncodingTable">
+            <summary>
+            Helper class for acquiring standard JPEG huffman encoding table.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegStandardHuffmanEncodingTable.GetLuminanceDCTable">
+            <summary>
+            Gets the standard Huffman encoding table for DC coefficient of luminance component.
+            </summary>
+            <returns>The Huffman encoding table for DC coefficient of luminance component.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegStandardHuffmanEncodingTable.GetLuminanceACTable">
+            <summary>
+            Gets the standard Huffman encoding table for RLE-encoded AC coefficient of chrominance component.
+            </summary>
+            <returns>The Huffman encoding table for RLE-encoded AC coefficient of chrominance component.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegStandardHuffmanEncodingTable.GetChrominanceDCTable">
+            <summary>
+            Gets the standard Huffman encoding table for DC coefficient of chrominance component.
+            </summary>
+            <returns>The Huffman encoding table for DC coefficient of chrominance component.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegStandardHuffmanEncodingTable.GetChrominanceACTable">
+            <summary>
+            Gets the standard Huffman encoding table for RLE-encoded AC coefficient of chrominance component.
+            </summary>
+            <returns>The Huffman encoding table for RLE-encoded AC coefficient of chrominance component.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegStandardQuantizationTable">
+            <summary>
+            Helper class for generating standard JPEG quantization table.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegStandardQuantizationTable.GetLuminanceTable(JpegLibrary.JpegElementPrecision,System.Byte)">
+            <summary>
+            Gets the standard quantization for luminance component.
+            </summary>
+            <param name="elementPrecision">The element precision.</param>
+            <param name="identifier">The identifier of the table.</param>
+            <returns>The standard quantization table.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegStandardQuantizationTable.GetChrominanceTable(JpegLibrary.JpegElementPrecision,System.Byte)">
+            <summary>
+            Gets the standard quantization for chrominance component.
+            </summary>
+            <param name="elementPrecision">The element precision.</param>
+            <param name="identifier">The identifier of the table.</param>
+            <returns>The standard quantization table.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegStandardQuantizationTable.ScaleByQuality(JpegLibrary.JpegQuantizationTable,System.Int32)">
+            <summary>
+            Scale the quantization table to match the specified JPEG quality.
+            </summary>
+            <param name="quantizationTable">The standard quantization to scale.</param>
+            <param name="quality">The quality factor.</param>
+            <returns>The scaled quantization table.</returns>
+        </member>
+        <member name="T:JpegLibrary.JpegWriter">
+            <summary>
+            A mutable struct for writing content into a buffer writer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.#ctor(System.Buffers.IBufferWriter{System.Byte},System.Int32)">
+            <summary>
+            Initialize the writer with the specified buffer writer.
+            </summary>
+            <param name="writer">The buffer writer to write to.</param>
+            <param name="minimumBufferSize">The minimum buffer size to rent per <see cref="M:System.Buffers.IBufferWriter`1.GetSpan(System.Int32)"/> call.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.Flush">
+            <summary>
+            Flush the temporary buffer into the underlying buffer writer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.EnterBitMode">
+            <summary>
+            Enter bit mode for this writer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.ExitBitMode">
+            <summary>
+            Enter bit mode for this writer.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.GetSpan(System.Int32)">
+            <summary>
+            Gets a temporary buffer for writing arbitrary content.
+            </summary>
+            <param name="length">The minimum size of the buffer.</param>
+            <returns>The temporary buffer.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.Advance(System.Int32)">
+            <summary>
+            Advance the temporary buffer and flush the content into the underlying buffer writer.
+            </summary>
+            <param name="length">The byte count to advance by.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.WriteBits(System.UInt32,System.Int32)">
+            <summary>
+            Write bits into the JPEG stream.
+            </summary>
+            <param name="bits">Right justified bits.</param>
+            <param name="bitLength">The count of bits to write.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.WriteBytes(System.Buffers.ReadOnlySequence{System.Byte})">
+            <summary>
+            The bytes into the JPEG stream.
+            </summary>
+            <param name="bytes">The bytes to write.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.WriteBytes(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            The bytes into the JPEG stream.
+            </summary>
+            <param name="bytes">The bytes to write.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.WriteMarker(JpegLibrary.JpegMarker)">
+            <summary>
+            Write JPEG marker into the JPEG stream.
+            </summary>
+            <param name="marker">The JPEG marker to writer.</param>
+        </member>
+        <member name="M:JpegLibrary.JpegWriter.WriteLength(System.UInt16)">
+            <summary>
+            Write a length field into the JPEG stream.
+            </summary>
+            <param name="length">The length to write.</param>
+        </member>
+        <member name="T:JpegLibrary.JpegZigZag">
+            <summary>
+            This class provide methods for converting between natural order and zig-zag order.
+            </summary>
+        </member>
+        <member name="M:JpegLibrary.JpegZigZag.InternalBlockIndexToBuffer(System.Int32)">
+            <summary>
+            Convert index of natural order into zig-zag order.
+            </summary>
+            <param name="index">Index of natural order starting from zero.</param>
+            <returns>Index of zig-zag order.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegZigZag.InternalBufferIndexToBlock(System.Int32)">
+            <summary>
+            Convert index of zig-zag order into natural order.
+            </summary>
+            <param name="index">Index of zig-zag order starting from zero.</param>
+            <returns>Index of natural order.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegZigZag.BlockIndexToBuffer(System.Int32)">
+            <summary>
+            Convert index of natural order into zig-zag order.
+            </summary>
+            <param name="index">Index of natural order starting from zero.</param>
+            <returns>Index of zig-zag order.</returns>
+        </member>
+        <member name="M:JpegLibrary.JpegZigZag.BufferIndexToBlock(System.Int32)">
+            <summary>
+            Convert index of zig-zag order into natural order.
+            </summary>
+            <param name="index">Index of zig-zag order starting from zero.</param>
+            <returns>Index of natural order.</returns>
+        </member>
+    </members>
+</doc>
